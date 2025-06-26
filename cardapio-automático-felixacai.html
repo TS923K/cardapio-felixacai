@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cardápio Açaí - Felix</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff0f5;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #5e006a;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 150px;
+    }
+    .box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    label, select, input {
+      display: block;
+      margin-top: 10px;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      color: #5e006a;
+      margin-top: 15px;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #5e006a;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png" class="logo" alt="Logo Felix Açaí" />
+
+  <h1>Monte seu Açaí 🍧</h1>
+
+  <div class="box">
+    <label for="tamanho">Escolha o tamanho:</label>
+    <select id="tamanho" onchange="atualizarLimites(); atualizarTotal();">
+      <option value="0">Selecione</option>
+      <option value="15">300ml - R$15,00 (2 frutas, 2 acompanhamentos)</option>
+      <option value="18">400ml - R$18,00 (3 frutas, 3 acompanhamentos)</option>
+      <option value="23">500ml - R$23,00 (3 frutas, 3 acompanhamentos)</option>
+    </select>
+  </div>
+
+  <div class="box">
+    <label>Frutas:</label>
+    <input type="checkbox" name="fruta" value="Morango" onchange="validar('fruta')"> Morango<br>
+    <input type="checkbox" name="fruta" value="Banana" onchange="validar('fruta')"> Banana<br>
+    <input type="checkbox" name="fruta" value="Uva" onchange="validar('fruta')"> Uva<br>
+    <input type="checkbox" name="fruta" value="Kiwi" onchange="validar('fruta')"> Kiwi<br>
+  </div>
+
+  <div class="box">
+    <label>Acompanhamentos:</label>
+    <input type="checkbox" name="acomp" value="Leite em pó" onchange="validar('acomp')"> Leite em pó<br>
+    <input type="checkbox" name="acomp" value="Nutella" onchange="validar('acomp')"> Nutella<br>
+    <input type="checkbox" name="acomp" value="Granola" onchange="validar('acomp')"> Granola<br>
+    <input type="checkbox" name="acomp" value="Paçoca" onchange="validar('acomp')"> Paçoca<br>
+    <input type="checkbox" name="acomp" value="Ovo maltine" onchange="validar('acomp')"> Ovo maltine<br>
+  </div>
+
+  <div class="box">
+    <label>Adicionais (R$5,00 cada):</label>
+    <input type="checkbox" class="adicional" value="5"> Morango<br>
+    <input type="checkbox" class="adicional" value="5"> Banana<br>
+    <input type="checkbox" class="adicional" value="5"> Uva<br>
+    <input type="checkbox" class="adicional" value="5"> Kiwi<br>
+    <input type="checkbox" class="adicional" value="5"> Leite em pó<br>
+    <input type="checkbox" class="adicional" value="5"> Nutella<br>
+  </div>
+
+  <div class="box">
+    <label for="endereco">Endereço de entrega:</label>
+    <input type="text" id="endereco" placeholder="Rua, número, bairro..." style="width:100%;padding:10px;">
+  </div>
+
+  <div class="total" id="total">Total: R$0</div>
+
+  <button onclick="enviarWhatsApp()">Fazer Pedido no WhatsApp</button>
+
+  <script>
+    let maxFrutas = 0;
+    let maxAcomps = 0;
+
+    function atualizarLimites() {
+      const valor = parseFloat(document.getElementById("tamanho").value);
+      if (valor === 15) {
+        maxFrutas = 2; maxAcomps = 2;
+      } else {
+        maxFrutas = 3; maxAcomps = 3;
+      }
+      validar('fruta');
+      validar('acomp');
+      atualizarTotal();
+    }
+
+    function validar(tipo) {
+      const checks = document.querySelectorAll("input[name='" + tipo + "']:checked");
+      const limite = tipo === 'fruta' ? maxFrutas : maxAcomps;
+      if (checks.length > limite) {
+        alert("Você só pode escolher até " + limite + " " + (tipo === 'fruta' ? "frutas" : "acompanhamentos") + ".");
+        event.target.checked = false;
+      }
+    }
+
+    function atualizarTotal() {
+      const base = parseFloat(document.getElementById("tamanho").value) || 0;
+      let total = base;
+      document.querySelectorAll(".adicional:checked").forEach(el => {
+        total += parseFloat(el.value);
+      });
+      document.getElementById("total").innerText = "Total: R$" + total.toFixed(2);
+    }
+
+    function enviarWhatsApp() {
+      const tamanho = document.getElementById("tamanho");
+      const tamanhoTexto = tamanho.options[tamanho.selectedIndex].text;
+      const frutas = Array.from(document.querySelectorAll("input[name='fruta']:checked")).map(el => el.value).join(", ") || "Nenhuma";
+      const acomp = Array.from(document.querySelectorAll("input[name='acomp']:checked")).map(el => el.value).join(", ") || "Nenhum";
+      const adicionais = Array.from(document.querySelectorAll(".adicional:checked")).map(el => el.nextSibling.textContent.trim()).join(", ") || "Nenhum";
+      const endereco = document.getElementById("endereco").value || "Não informado";
+      const total = document.getElementById("total").innerText;
+
+      const mensagem = `Olá! Quero pedir um Açaí:%0A${tamanhoTexto}%0AFrutas: ${frutas}%0AAcompanhamentos: ${acomp}%0AAdicionais: ${adicionais}%0A${total}%0AEndereço: ${endereco}`;
+      const telefone = "5511960433445";
+      const link = `https://wa.me/${telefone}?text=${mensagem}`;
+      window.open(link, "_blank");
+    }
+
+    document.querySelectorAll(".adicional").forEach(el => {
+      el.addEventListener("change", atualizarTotal);
+    });
+  </script>
+</body>
+</html>
